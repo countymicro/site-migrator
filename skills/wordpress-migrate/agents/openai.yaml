@@ -1,0 +1,4 @@
+interface:
+  display_name: "WordPress Migration"
+  short_description: "Migrate WordPress to Astro and Cloudflare Pages"
+  default_prompt: "Use $wordpress-migrate to migrate the WordPress site at https://example.com and ask for missing site details."

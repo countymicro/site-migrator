@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cloudflare Contact Forms"
+  short_description: "Build email forms with reliable thank-you states"
+  default_prompt: "Use $cloudflare-contact-forms to replace this site’s contact forms with Worker email and verify submission states."

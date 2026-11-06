@@ -1,0 +1,4 @@
+interface:
+  display_name: "WordPress Design Parity"
+  short_description: "Compare every migrated page on desktop and mobile"
+  default_prompt: "Use $wordpress-parity to compare this migrated site with the WordPress source and fix meaningful differences."

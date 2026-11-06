@@ -1,0 +1,4 @@
+interface:
+  display_name: "WordPress Content Import"
+  short_description: "Preserve WXR content, URLs, SEO and local media"
+  default_prompt: "Use $wordpress-import to inventory and convert this WordPress export into editable Astro content."
