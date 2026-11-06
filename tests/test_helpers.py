@@ -72,7 +72,7 @@ class Helpers(unittest.TestCase):
         self.assertFalse((self.root / 'site').exists())
 
     def test_interactive_asks_for_destination_mailbox_and_defers_sender(self):
-        result = self.run_init(input_text='email\nforms@example.org\n\n')
+        result = self.run_init(input_text='email\nforms@example.org\n\n\n')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('Approved contact form recipient', result.stdout)
         data = json.loads((self.root / 'site/migration/intake.json').read_text())
@@ -81,6 +81,26 @@ class Helpers(unittest.TestCase):
         self.assertFalse(any(data['scope'].values()))
         self.assertEqual(data['source_url'], 'https://example.org/studio')
         self.assertEqual(data['export_scope'], 'unconfirmed')
+
+    def test_named_sender_and_ci_intent_are_saved_without_authorizing_deployment(self):
+        result = self.run_init('--non-interactive', '--forms-mode', 'email',
+                               '--contact-to', 'forms@example.org', '--sender', 'website@example.org',
+                               '--sender-name', 'Éxample Studio Website', '--ci-mode', 'deploy-on-push')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads((self.root / 'site/migration/intake.json').read_text())
+        self.assertEqual(data['forms']['sender_name'], 'Éxample Studio Website')
+        self.assertEqual(data['forms']['sender'], 'website@example.org')
+        self.assertEqual(data['hosting']['ci']['mode'], 'deploy-on-push')
+        self.assertIsNone(data['hosting']['ci']['repository'])
+        self.assertFalse(any(data['scope'].values()))
+
+    def test_sender_name_rejects_header_injection_and_inapplicable_form_mode(self):
+        for mode, name in (('email', 'Website\r\nBcc: hidden@example.org'), ('none', 'Website')):
+            recipients = ['--contact-to', 'forms@example.org'] if mode == 'email' else []
+            result = self.run_init('--non-interactive', '--forms-mode', mode,
+                                   *recipients, '--sender-name', name)
+            self.assertEqual(result.returncode, 2)
+            self.assertFalse((self.root / 'site').exists())
 
     def test_repeated_init_does_not_reset_decisions(self):
         result = self.run_init('--non-interactive', '--forms-mode', 'none')

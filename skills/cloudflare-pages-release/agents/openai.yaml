@@ -1,4 +1,4 @@
 interface:
   display_name: "Cloudflare Pages Release"
-  short_description: "Verify Pages routing, bindings and hosted behavior"
+  short_description: "Verify Pages CI/CD, bindings and hosted behavior"
   default_prompt: "Use $cloudflare-pages-release to prepare and verify this migrated Astro site for Cloudflare Pages."

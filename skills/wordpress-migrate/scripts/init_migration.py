@@ -26,6 +26,15 @@ def email(value):
     return value
 
 
+def display_name(value):
+    if any(ord(char) < 32 or ord(char) == 127 for char in value):
+        raise ValueError('Sender name cannot contain control characters.')
+    value = value.strip()
+    if not value or len(value) > 200:
+        raise ValueError('Sender name must contain 1–200 characters.')
+    return value
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-url')
@@ -34,6 +43,9 @@ def main():
     parser.add_argument('--forms-mode', choices=('email', 'preserve', 'none', 'undecided'))
     parser.add_argument('--contact-to', action='append', default=[], help='Repeat for multiple approved recipients')
     parser.add_argument('--sender', help='Verified sender; may remain pending during local implementation')
+    parser.add_argument('--sender-name', help='Friendly sender display name; separate from sender mailbox')
+    parser.add_argument('--ci-mode', choices=('undecided', 'validation-only', 'deploy-on-push'), default='undecided',
+                        help='Record CI intent without provisioning credentials or deploying')
     parser.add_argument('--non-interactive', action='store_true', help='Require answers via flags; never read stdin')
     for action in ('deploy', 'push', 'dns-cutover', 'live-email-test'):
         parser.add_argument('--authorize-' + action, action='store_true',
@@ -72,8 +84,12 @@ def main():
         if mode == 'email' and not args.non_interactive:
             sender = ask(sender, 'Verified sender email (blank to configure later)', required=False)
         sender = email(sender) if sender else None
-        if mode != 'email' and (recipients or sender):
-            raise ValueError('Recipient/sender flags require --forms-mode email.')
+        name = args.sender_name
+        if mode == 'email' and not args.non_interactive:
+            name = ask(name, 'Friendly sender name (blank to configure later)', required=False)
+        name = display_name(name) if name is not None else None
+        if mode != 'email' and (recipients or sender or name):
+            raise ValueError('Recipient/sender/name flags require --forms-mode email.')
         intake = output / 'migration/intake.json'
         if intake.exists():
             raise ValueError('Intake already exists; resume or edit it instead of resetting decisions.')
@@ -83,10 +99,12 @@ def main():
             'schema_version': 1, 'source_url': source,
             'export_path': str(export_path), 'workspace': str(output),
             'export_scope': 'unconfirmed', 'fidelity': 'close-to-source',
-            'forms': {'mode': mode, 'recipients': recipients, 'sender': sender,
+            'forms': {'mode': mode, 'recipients': recipients, 'sender': sender, 'sender_name': name,
                       'per_form_routing': {}, 'workflow_decision': 'pending'},
             'hosting': {'target': 'cloudflare-pages', 'account': None, 'project': None,
-                        'functional_origins': []},
+                        'functional_origins': [],
+                        'ci': {'provider': 'github-actions', 'mode': args.ci_mode,
+                               'repository': None, 'production_branch': None}},
             'scope': {name: getattr(args, 'authorize_' + name) for name in
                       ('deploy', 'push', 'dns_cutover', 'live_email_test')}
         }

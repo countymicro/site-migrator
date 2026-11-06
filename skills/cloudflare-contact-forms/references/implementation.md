@@ -12,6 +12,7 @@ Maintain per-environment values:
 | --- | --- |
 | Fixed form recipient(s) | User-approved; matches provider/binding restrictions |
 | Fixed From | Verified domain/address; no visitor-controlled sender |
+| Friendly sender name | Site-specific editable configuration; encoded via provider named-address API, not concatenated raw headers |
 | Turnstile sitekey + secret | Same widget/environment; secret stored with secret tooling |
 | Turnstile hostnames | Actual custom domain, www if used, and designated Pages host |
 | Worker origin list | Exact scheme/host/port for every functional host; no suffix-wildcard trust |
@@ -23,10 +24,17 @@ Use an isolated preview/test Worker and recipient for functional previews; do no
 
 Fetch configuration first; expose only public readiness/sitekey values for allowed hosts, never secret/account details. Register the challenge onload callback before loading its script. Clean up on navigation if applicable. Once successful, form reset/config refetch, error/expiry callbacks or late async responses must not return the UI to editing. Consider a single state owner with guards for stale responses.
 
+## Sender identity and acceptance
+
+Use the provider's structured named-address API where supported. In Cloudflare Email Service this is `from: {email: configuredAddress, name: configuredDisplayName}`, with visitor `replyTo` kept separate. Keep the display name in site configuration/content and carry it into Worker configuration deliberately; do not hardcode another client’s brand in the Worker. Reject CR/LF/control characters in configurable header values and use the provider’s escaping/encoding for Unicode names.
+
+Type the send result accurately and require a nonempty documented `messageId` before the success response. Test missing/empty receipts as failure, named From, visitor Reply-To, and provider rejection. A message ID is provider acceptance, not proof of inbox arrival. See [delivery diagnostics](delivery-diagnostics.md) for authentication, observability and bounce diagnosis.
+
 ## Official references
 
 Verify these at implementation time:
 
+- [Email Sending Workers API](https://developers.cloudflare.com/email-service/api/send-emails/workers-api/): named addresses and send receipts; verify the API available to this account.
 - [Email Service send bindings](https://developers.cloudflare.com/email-service/configuration/send-bindings/): sender and recipient restrictions.
 - [Pages service bindings](https://developers.cloudflare.com/pages/functions/bindings/#service-bindings): Pages-to-Worker configuration and redeployment.
 - [Turnstile server validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/): token verification, hostname and action.

@@ -22,7 +22,9 @@ git clone https://github.com/countymicro/site-migrator.git
 | [wordpress-import](skills/wordpress-import/SKILL.md) | WXR inventory, content/media, builders, metadata, URL preservation |
 | [wordpress-parity](skills/wordpress-parity/SKILL.md) | Rebuild design and inspect every public page at desktop and mobile sizes |
 | [cloudflare-contact-forms](skills/cloudflare-contact-forms/SKILL.md) | Native forms, Worker email, Turnstile, submission and thank-you states |
-| [cloudflare-pages-release](skills/cloudflare-pages-release/SKILL.md) | Pages routing, bindings, hosted checks, deployment and domain cutover |
+| [cloudflare-pages-release](skills/cloudflare-pages-release/SKILL.md) | Pages routing, GitHub Actions CI/CD, scoped credentials, hosted checks and cutover |
+
+Email work includes a friendly sender name, receipt validation, delivery logs, DKIM/DMARC diagnosis, and actual inbox checks when authorized. Release work includes validation CI and optional deploy-on-push, using a [GitHub Actions template](skills/cloudflare-pages-release/assets/github-cloudflare.yml) adapted in each destination repository. The template is not an active deployment workflow for this toolkit.
 
 The skills can be used directly by path. Keep this directory structure when copying the pack: the main skill links to its sibling skills. No paid plugin, specific browser provider, global skill installation, or County Micro account is required. Use the browser and deployment tools available in the current environment.
 
@@ -37,7 +39,7 @@ python3 skills/wordpress-migrate/scripts/init_migration.py \
   --source-url https://example.com --output /path/to/client-site
 ```
 
-For agent-driven intake, ask the questions conversationally, then pass the answers with `--non-interactive`. Run `--help` for the options. This writes a private, ignored `migration/intake.json` and creates no application, deploys nothing, and sends no email. The agent continues with the skills to build the actual site.
+For agent-driven intake, ask the questions conversationally, then pass the answers with `--non-interactive`. Use `--sender-name "Example Studio Website"` and `--ci-mode deploy-on-push` to record those choices. Run `--help` for the options. This writes a private, ignored `migration/intake.json` and creates no application, deploys nothing, and sends no email. The agent continues with the skills to build the actual site.
 
 Inspect a WXR export without touching it or fetching its URLs:
 

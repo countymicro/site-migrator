@@ -1,6 +1,6 @@
 ---
 name: cloudflare-pages-release
-description: Configure and verify a static Astro WordPress replacement on Cloudflare Pages, including Functions, legacy redirects, Worker bindings, preview hosts and controlled deployment/cutover. Use for migration hosting checks and release work.
+description: Configure and verify a static Astro WordPress replacement on Cloudflare Pages, including Functions, legacy redirects, Worker bindings, preview hosts and controlled deployment/cutover. Use for migration hosting checks, GitHub Actions deployment pipelines and release work.
 ---
 
 # Pages runtime and release
@@ -15,6 +15,12 @@ A static Astro site needs no SSR adapter. Configure its build output and include
 - Compile Functions and dry-run the Worker. Serve with the Cloudflare local runtime to test routing and service bindings; `astro preview` alone cannot prove either.
 - Test representative normal pages, media/PDFs, aliases, attachment paths, query-ID shortlinks with tracking parameters, sitemap aliases, feed routes, unknown IDs and unknown paths. Check exact status and Location/content, loops and unintended catchalls.
 - Limit Functions invocation to routes that need it. Reconcile `_redirects` behavior with invocation coverage and check account/platform limits for this site's redirect volume.
+
+## Continuous integration and deployment
+
+Include validation CI in the destination. Determine whether the user wants validation only or automatic publishing on pushes to the production branch; preserve an existing explicit choice. Read [references/github-actions.md](references/github-actions.md) for the reusable workflow, scoped credentials, deployment ordering and end-to-end checks. Ask for missing repository/branch/account choices near release, not as a blocker to importing content.
+
+Build and verify the workflow before provisioning missing credentials or activating deployment. Adding a YAML file, uploading a secret and completing a push-triggered release are separate milestones. A deploy-on-push request includes following the first eligible run through Worker deployment, Pages deployment and hosted verification for the exact pushed SHA.
 
 ## Deploy when authorized
 
