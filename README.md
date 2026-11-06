@@ -1,75 +1,78 @@
 # Site Migrator
 
-Reusable agent skills for rebuilding WordPress sites in **Astro on Cloudflare Pages**, with Markdown content collections, local media, preserved URLs and SEO, native email forms, and evidence from desktop/mobile browser review.
+Skills for an AI coding agent to rebuild a WordPress site as an editable **Astro website on Cloudflare Pages**, while keeping its design, content, URLs and search metadata.
 
-Start a migration with:
+## Start a migration
+
+Give your agent this prompt, replacing the example URL:
 
 > Using https://github.com/countymicro/site-migrator, migrate the WordPress site at https://example.com.
 
-The agent should read [AGENTS.md](AGENTS.md), then [wordpress-migrate](skills/wordpress-migrate/SKILL.md). It asks for the WordPress export and destination project, then the form email recipient and any other decisions needed for the actual site. It proceeds with discovery and local implementation while deployment decisions are pending. Each migrated site gets its own project and Git repository; this repository holds the reusable process.
+The agent reads [AGENTS.md](AGENTS.md) and starts the [migration skill](skills/wordpress-migrate/SKILL.md). It asks for missing details as they become relevant:
 
-A repository URL is an instruction to the agent to fetch and read the repository; it does not automatically install skills in every agent product. If your agent cannot fetch it, clone this repository and point the agent to its local `AGENTS.md`:
+- **WordPress export:** where the XML file is saved. In WordPress, choose **Tools → Export → All content**.
+- **New project:** where to create the website and which Git repository to use.
+- **Forms:** which inbox receives submissions, the sender address and friendly sender name, and any downloads or CRM behavior to preserve.
+- **Hosting:** the Cloudflare account, project and domain, plus whether pushes should automatically publish the site.
+
+You can include answers in your first prompt to save time. Each website gets its own project and repository, so you can reuse this toolkit for multiple clients.
+
+This repository is private, so your agent needs GitHub access. If it cannot read the link directly, clone it:
 
 ```sh
 git clone https://github.com/countymicro/site-migrator.git
 ```
 
-## Skills
+Then tell the agent:
 
-| Skill | Use |
+> Read site-migrator/AGENTS.md and use its migration workflow to migrate https://example.com.
+
+## What it handles
+
+- Converts pages and posts into editable Markdown content collections and downloads media locally.
+- Preserves page addresses, SEO titles and descriptions, and creates redirects where needed.
+- Recreates layouts and checks every public page against the original on desktop and mobile.
+- Replaces contact forms with email submissions, spam protection, a sending indicator and a persistent thank-you message.
+- Configures friendly email sender names, checks delivery receipts, and investigates missing mail or domain authentication problems.
+- Adds GitHub Actions validation and, when requested, automatic Cloudflare deployment after checks pass.
+
+The agent asks before dropping or changing features it cannot reproduce, such as store checkout, member accounts or plugin-specific workflows. Keep the original site available during migration so its appearance and behavior can be compared.
+
+## What you receive
+
+A separate website repository with editing and deployment instructions, plus a migration report listing content counts, redirects, checks performed and anything still unresolved.
+
+The report distinguishes code changes, commits, pushes, deployments, domain changes and confirmed email delivery. Publishing, domain/email DNS changes and real test emails follow your instructions; missing access or decisions are raised when needed.
+
+## Included skills
+
+| Skill | Purpose |
 | --- | --- |
-| [wordpress-migrate](skills/wordpress-migrate/SKILL.md) | Intake, coordination, completion report; start here for a whole migration |
-| [wordpress-import](skills/wordpress-import/SKILL.md) | WXR inventory, content/media, builders, metadata, URL preservation |
-| [wordpress-parity](skills/wordpress-parity/SKILL.md) | Rebuild design and inspect every public page at desktop and mobile sizes |
-| [cloudflare-contact-forms](skills/cloudflare-contact-forms/SKILL.md) | Native forms, Worker email, Turnstile, submission and thank-you states |
-| [cloudflare-pages-release](skills/cloudflare-pages-release/SKILL.md) | Pages routing, GitHub Actions CI/CD, scoped credentials, hosted checks and cutover |
+| [wordpress-migrate](skills/wordpress-migrate/SKILL.md) | Start here; gathers answers and runs the complete migration |
+| [wordpress-import](skills/wordpress-import/SKILL.md) | Import content, media, URLs and SEO |
+| [wordpress-parity](skills/wordpress-parity/SKILL.md) | Match the design and check desktop/mobile pages |
+| [cloudflare-contact-forms](skills/cloudflare-contact-forms/SKILL.md) | Build forms and verify email behavior |
+| [cloudflare-pages-release](skills/cloudflare-pages-release/SKILL.md) | Set up CI, deployment and hosted checks |
 
-Email work includes a friendly sender name, receipt validation, delivery logs, DKIM/DMARC diagnosis, and actual inbox checks when authorized. Release work includes validation CI and optional deploy-on-push, using a [GitHub Actions template](skills/cloudflare-pages-release/assets/github-cloudflare.yml) adapted in each destination repository. The template is not an active deployment workflow for this toolkit.
+The release skill includes a [GitHub Actions template](skills/cloudflare-pages-release/assets/github-cloudflare.yml) to adapt for each website.
 
-The skills can be used directly by path. Keep this directory structure when copying the pack: the main skill links to its sibling skills. No paid plugin, specific browser provider, global skill installation, or County Micro account is required. Use the browser and deployment tools available in the current environment.
+## Optional developer tools
 
-## Helpers
+These helpers need Python 3.10+ and no extra Python packages. Run them from this repository. They support the agent's work; they do not build or deploy a website by themselves.
 
-Python 3.10+ is enough for all bundled helpers; they use only the standard library. Astro, Node, Wrangler and browser tooling belong in the destination project, with versions chosen and locked during that migration.
-
-Optional interactive intake (run from this repository):
+Start a guided intake:
 
 ```sh
 python3 skills/wordpress-migrate/scripts/init_migration.py \
-  --source-url https://example.com --output /path/to/client-site
+  --source-url https://example.com --output /path/to/new-site
 ```
 
-For agent-driven intake, ask the questions conversationally, then pass the answers with `--non-interactive`. Use `--sender-name "Example Studio Website"` and `--ci-mode deploy-on-push` to record those choices. Run `--help` for the options. This writes a private, ignored `migration/intake.json` and creates no application, deploys nothing, and sends no email. The agent continues with the skills to build the actual site.
+Use `--help` for options, including `--sender-name` and `--ci-mode`. See the [import skill](skills/wordpress-import/SKILL.md) for export inventory and the [parity skill](skills/wordpress-parity/SKILL.md) for screenshot evidence checks. The evidence helper checks recorded coverage and files; the agent still needs to inspect the actual pages.
 
-Inspect a WXR export without touching it or fetching its URLs:
-
-```sh
-python3 skills/wordpress-import/scripts/inventory_wxr.py /private/path/export.xml \
-  --source-url https://example.com --output /path/to/client-site/migration/inventory.json
-```
-
-Check recorded visual evidence after browser review:
-
-```sh
-python3 skills/wordpress-parity/scripts/check_parity.py \
-  --inventory /path/to/client-site/migration/inventory.json \
-  --manifest /path/to/client-site/migration/parity/manifest.json
-```
-
-This checks route coverage, viewport measurements, review records, screenshot files, overflow and broken images. It does **not** compare pixels or decide visual similarity. See the [evidence format](skills/wordpress-parity/references/evidence.md).
-
-Run the helper regression suite with:
+Run helper tests:
 
 ```sh
 python3 -m unittest discover -s tests -v
 ```
 
-## What completion means
-
-A successful build is one check. A migration also needs reconciled content and URL inventories, all-page visual review, tested form states, and an honest account of source gaps. The report separates implemented, committed, pushed, deployed, DNS switched, provider-accepted email and inbox-confirmed delivery.
-
-The defaults are local implementation and close design fidelity. Publishing, changing DNS/MX, and sending real test messages follow the user's actual instructions; the agent asks only for missing authorization or essential details. Existing authorizations persist.
-
-Exports can contain drafts, users, private content and plugin metadata. Keep exports, intake answers, credentials, raw captures, and contact submissions out of this reusable repository and out of public site assets. Sanitized evidence and imported public content belong in each destination repository as appropriate.
-
-These skills encode lessons from the County Micro migration without shipping its content, export, keys, or account configuration. They are a guided migration toolkit, not a universal automatic converter for every WordPress plugin, store, or membership system.
+Keep client exports, credentials, private drafts and contact submissions out of this toolkit and public website assets. The migration workflow keeps private intake files separate from publishable content.
