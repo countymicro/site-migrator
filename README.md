@@ -10,12 +10,12 @@ Give your agent this prompt, replacing the example URL:
 
 The agent reads [AGENTS.md](AGENTS.md) and starts the [migration skill](skills/wordpress-migrate/SKILL.md). It asks for missing details as they become relevant:
 
-- **WordPress export:** where the XML file is saved. In WordPress, choose **Tools → Export → All content**.
+- **WordPress export:** use an existing XML file, or let the agent open WordPress admin and download a fresh **All content** export. You may need to sign in or complete MFA in the browser; no password in chat is needed.
 - **New project:** where to create the website and which Git repository to use.
 - **Forms:** which inbox receives submissions, the sender address and friendly sender name, and any downloads or CRM behavior to preserve.
 - **Hosting:** the Cloudflare account, project and domain, plus whether pushes should automatically publish the site.
 
-You can include answers in your first prompt to save time. Each website gets its own project and repository, so you can reuse this toolkit for multiple clients.
+You can include answers in your first prompt to save time. If you have no export, say “Download a fresh export from WordPress admin.” The agent checks the downloaded file before importing it. Each website gets its own project and repository, so you can reuse this toolkit for multiple clients.
 
 This repository is private, so your agent needs GitHub access. If it cannot read the link directly, clone it:
 
@@ -67,7 +67,7 @@ python3 skills/wordpress-migrate/scripts/init_migration.py \
   --source-url https://example.com --output /path/to/new-site
 ```
 
-Use `--help` for options, including `--sender-name` and `--ci-mode`. See the [import skill](skills/wordpress-import/SKILL.md) for export inventory and the [parity skill](skills/wordpress-parity/SKILL.md) for screenshot evidence checks. The evidence helper checks recorded coverage and files; the agent still needs to inspect the actual pages.
+Use `--help` for options, including `--export-from-admin` for a pending browser export, `--sender-name` and `--ci-mode`. The intake helper records the export choice; the agent handles browser sign-in and download. See the [import skill](skills/wordpress-import/SKILL.md) for export inventory and the [parity skill](skills/wordpress-parity/SKILL.md) for screenshot evidence checks. The evidence helper checks recorded coverage and files; the agent still needs to inspect the actual pages.
 
 Run helper tests:
 

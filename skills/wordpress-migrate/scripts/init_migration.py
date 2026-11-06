@@ -39,7 +39,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-url')
     parser.add_argument('--output', help='Separate destination site directory, not this toolkit')
-    parser.add_argument('--export', dest='export_path', help='Local WXR path; never copied or changed')
+    export_choice = parser.add_mutually_exclusive_group()
+    export_choice.add_argument('--export', dest='export_path', help='Local WXR path; never copied or changed')
+    export_choice.add_argument('--export-from-admin', action='store_true',
+                               help='Record a pending browser download from WordPress admin; agent performs it')
+    parser.add_argument('--wordpress-admin-url', help='Optional admin starting URL without credentials/session parameters')
     parser.add_argument('--forms-mode', choices=('email', 'preserve', 'none', 'undecided'))
     parser.add_argument('--contact-to', action='append', default=[], help='Repeat for multiple approved recipients')
     parser.add_argument('--sender', help='Verified sender; may remain pending during local implementation')
@@ -70,9 +74,18 @@ def main():
         toolkit = Path(__file__).resolve().parents[3]
         if output == toolkit or toolkit in output.parents or output in toolkit.parents:
             raise ValueError('Choose a separate destination outside this toolkit.')
-        export_path = Path(ask(args.export_path, 'WordPress WXR export path')).expanduser().resolve()
-        if not export_path.is_file():
-            raise ValueError('Export path must be an existing local file; request it before dependent import work.')
+        export_value = args.export_path
+        if not args.export_from_admin:
+            if args.non_interactive and not export_value:
+                raise ValueError('Supply --export with a local file or --export-from-admin for a browser download.')
+            export_value = ask(export_value, 'WordPress WXR export path (blank to download through WordPress admin)',
+                               required=False)
+        export_path = Path(export_value).expanduser().resolve() if export_value else None
+        if export_path is not None and not export_path.is_file():
+            raise ValueError('Export path must exist; use --export-from-admin if a fresh browser export is needed.')
+        admin_url = source_url(args.wordpress_admin_url) if args.wordpress_admin_url else None
+        if admin_url and export_path is not None:
+            raise ValueError('--wordpress-admin-url requires the browser export choice, not a local file.')
         mode = ask(args.forms_mode, 'Form mode: email, preserve, none, undecided', default='email')
         if mode not in ('email', 'preserve', 'none', 'undecided'):
             raise ValueError('Invalid form mode.')
@@ -97,7 +110,10 @@ def main():
             raise ValueError('Destination is not a directory.')
         data = {
             'schema_version': 1, 'source_url': source,
-            'export_path': str(export_path), 'workspace': str(output),
+            'export_path': str(export_path) if export_path is not None else None,
+            'export_source': 'provided-file' if export_path is not None else 'wordpress-admin',
+            'export_status': 'available' if export_path is not None else 'pending-download',
+            'export_admin_url': admin_url, 'workspace': str(output),
             'export_scope': 'unconfirmed', 'fidelity': 'close-to-source',
             'forms': {'mode': mode, 'recipients': recipients, 'sender': sender, 'sender_name': name,
                       'per_form_routing': {}, 'workflow_decision': 'pending'},
@@ -125,6 +141,8 @@ def main():
             json.dump(data, stream, indent=2)
             stream.write('\n')
         print(f'Created {intake}. Continue with wordpress-migrate; nothing deployed or sent.')
+        if export_path is None:
+            print('Export pending: use the WordPress admin browser workflow, validate the download, then update intake.')
     except (ValueError, OSError, EOFError) as exc:
         parser.exit(2, f'Intake error: {exc}\n')
 

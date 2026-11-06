@@ -1,17 +1,17 @@
 ---
 name: wordpress-import
-description: Inventory and convert WordPress WXR exports into Astro content collections while preserving routes, SEO, builder structure and local media. Use during a WordPress-to-Astro migration or to repair an incomplete import.
+description: Obtain WordPress WXR exports through browser admin or local files and convert them into Astro content collections while preserving routes, SEO, builder structure and local media. Use during a WordPress-to-Astro migration or to repair an incomplete import.
 ---
 
 # Import WordPress content
 
-Read the site's intake and inspect the export before coding a converter. Never alter the source export. Run the offline helper with absolute source/output paths:
+Read the site's intake and inspect the export before coding a converter. If the export is missing or pending, follow [the WordPress admin browser export workflow](../wordpress-migrate/references/wordpress-admin-export.md) to obtain and validate a fresh file, then resume here. Never alter the source export. Run the offline helper with absolute source/output paths:
 
 ```sh
 python3 scripts/inventory_wxr.py /path/to/export.xml --source-url https://example.com --output /path/to/site/migration/inventory.json
 ```
 
-Resolve script paths relative to this skill. The helper inventories; it does not convert builder widgets, fetch assets or prove that the export is complete. Read [references/conversion.md](references/conversion.md) for builder/media details and URL pitfalls.
+Resolve script paths relative to this skill. The helper inventories; it does not convert builder widgets, fetch assets or prove that the export is complete. Review its retained original channel/base URLs and any `export-site-mismatch` warning against the intended source; a `--source-url` override is not site-identity verification. Read [references/conversion.md](references/conversion.md) for builder/media details and URL pitfalls.
 
 ## Reconcile before rendering
 

@@ -2,6 +2,7 @@
 
 Use actual observations from the destination, not this file's presence, as proof. Report failed/unavailable checks alongside passing checks.
 
+- **Export acquisition:** if obtained through admin, confirm the correct site/dashboard, observed scope, actual completed local WXR file(s), timestamp/checksum and successful parse. Login/download pending is distinct from import complete; keep raw exports private.
 - **Inventory:** count page/post/custom types and publication states; distinguish an empty post collection from missing exports. Reconcile WXR/live routes, navigation and intentional exclusions.
 - **Content:** assert source text/sections survive in rendered output, including rich inline formatting, lists, tables, downloads and shared copy. Client edits live in collections. Check every imported record, not one example.
 - **URLs/SEO:** compare titles, descriptions, canonicals, robots/noindex, feeds and sitemap inclusion; test aliases, shortlinks, attachment links and media redirects in the Cloudflare runtime. No loops, unrelated catchalls, accidental staging canonicals or drafts in sitemap.

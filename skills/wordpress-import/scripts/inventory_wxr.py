@@ -40,7 +40,24 @@ def inspect(path, source=None):
     base = source or channel.findtext('link') or channel.findtext(wp + 'base_site_url')
     if not base or urlsplit(base).scheme not in ('http', 'https') or not urlsplit(base).hostname:
         raise ValueError('A valid --source-url or channel link is required.')
+    export_site = {
+        'title': channel.findtext('title', ''),
+        'channel_url': channel.findtext('link', ''),
+        'base_site_url': channel.findtext(wp + 'base_site_url', ''),
+        'base_blog_url': channel.findtext(wp + 'base_blog_url', '')
+    }
     records, warnings, routes, ids = [], [], {}, set()
+    exported_url = export_site['channel_url'] or export_site['base_blog_url'] or export_site['base_site_url']
+    if not exported_url:
+        warnings.append({'type': 'missing-export-site-identity'})
+    elif source:
+        def site_identity(url):
+            parts = urlsplit(url)
+            return parts.scheme.lower(), parts.netloc.lower(), parts.path.rstrip('/') or '/'
+        if site_identity(source) != site_identity(exported_url):
+            warnings.append({'type': 'export-site-mismatch', 'requested_url': source,
+                             'exported_url': exported_url,
+                             'detail': 'Review site identity or a verified domain mapping before import.'})
     counts, widgets = Counter(), Counter()
     for node in channel.findall('item'):
         field = lambda key: node.findtext(wp + key, '')
@@ -108,7 +125,8 @@ def inspect(path, source=None):
         })
     return {
         'schema_version': 1, 'captured_at': datetime.now(timezone.utc).isoformat(),
-        'source_url': base, 'export_sha256': hashlib.sha256(raw).hexdigest(),
+        'source_url': base, 'requested_source_url': source, 'export_site': export_site,
+        'export_sha256': hashlib.sha256(raw).hexdigest(),
         'wxr_version': channel.findtext(wp + 'wxr_version'),
         'counts': [{'post_type': kind, 'status': status, 'count': count}
                    for (kind, status), count in sorted(counts.items())],

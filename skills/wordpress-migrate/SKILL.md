@@ -1,6 +1,6 @@
 ---
 name: wordpress-migrate
-description: Rebuild a WordPress site in Astro for Cloudflare Pages, coordinating export intake, content and URL preservation, design parity, email forms, and release verification. Use for a complete WordPress migration with this skill pack.
+description: Rebuild a WordPress site in Astro for Cloudflare Pages, coordinating browser export acquisition or file intake, content and URL preservation, design parity, email forms, and release verification. Use for a complete WordPress migration with this skill pack.
 ---
 
 # WordPress migration
@@ -13,13 +13,13 @@ Read the destination's instructions, Git status and any `migration/` records. If
 
 Ask only for missing decisions that affect the work. Start with a short batch:
 
-- Where is the WordPress WXR export (absolute path or attached file), and is it an All Content export? Request the actual file in the conversation if attachment is needed; text-only question tools cannot accept uploads.
+- Is a current All Content WordPress WXR export available (absolute path or attached file)? If not, obtain a fresh export through the source site’s WordPress admin using the browser workflow below. Request the actual file in the conversation if attachment is needed; text-only question tools cannot accept uploads.
 - Where should the new site/repository live? Inspect an existing destination before writing.
 - For discovered contact/lead forms: which mailbox receives each form, and should CRM workflows or resource delivery be retained? A public contact address is not proof of the submission destination.
 
-Default to closely matching the live site. Offer those defaults briefly; ask about redesign only if intent conflicts. Ask later for missing verified sender/domain, Cloudflare account/project, preview/custom hostnames and deployment scope when those decisions become relevant. A missing account or secret does not block content/design work. If no export is available, inventory the live site and document the import blocker; never invent drafts, dates, taxonomy or plugin data.
+Default to closely matching the live site. Offer those defaults briefly; ask about redesign only if intent conflicts. Ask later for missing verified sender/domain, Cloudflare account/project, preview/custom hostnames and deployment scope when those decisions become relevant. A missing account or secret does not block content/design work. If no export is available, read [references/wordpress-admin-export.md](references/wordpress-admin-export.md): use an authorized browser session or hand off sign-in/MFA, download All content from the correct source dashboard, validate the actual file and resume import. Do not treat a missing local export as a blocker before attempting that supported path. If access/download is blocked, continue public-site discovery and record what is needed; never invent drafts, dates, taxonomy or plugin data.
 
-Use [references/intake.md](references/intake.md) for conditional questions and saved-state conventions. Optionally run `scripts/init_migration.py` with conversational answers using `--non-interactive`; the interactive version is for a human terminal. Credentials go through environment/secret tools, not intake JSON or chat.
+Use [references/intake.md](references/intake.md) for conditional questions and saved-state conventions. Optionally run `scripts/init_migration.py` with conversational answers using `--non-interactive`; the interactive version is for a human terminal. Use `--export-from-admin` to save a pending browser-download intake without a local export; the helper records the choice and the agent performs the browser work. Credentials go through environment/secret tools, not intake JSON or chat.
 
 ## Execute the migration
 

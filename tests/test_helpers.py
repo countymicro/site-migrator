@@ -66,6 +66,44 @@ class Helpers(unittest.TestCase):
                                '--output', str(self.root / 'site'), '--export', str(self.export), *extra],
                               input=input_text, capture_output=True, text=True)
 
+    def test_admin_export_intake_can_start_without_a_local_export(self):
+        result = subprocess.run([sys.executable, str(INIT), '--source-url', 'https://example.org/studio/',
+                                 '--output', str(self.root / 'site'), '--export-from-admin',
+                                 '--wordpress-admin-url', 'https://example.org/studio/custom-admin',
+                                 '--forms-mode', 'none', '--non-interactive'], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads((self.root / 'site/migration/intake.json').read_text())
+        self.assertIsNone(data['export_path'])
+        self.assertEqual(data['export_source'], 'wordpress-admin')
+        self.assertEqual(data['export_status'], 'pending-download')
+        self.assertEqual(data['export_scope'], 'unconfirmed')
+        self.assertEqual(data['export_admin_url'], 'https://example.org/studio/custom-admin')
+        self.assertFalse(any(data['scope'].values()))
+        self.assertIn('Export pending', result.stdout)
+        self.assertIn('/exports/', (self.root / 'site/.gitignore').read_text())
+
+    def test_blank_interactive_export_chooses_browser_download(self):
+        result = subprocess.run([sys.executable, str(INIT), '--source-url', 'https://example.org',
+                                 '--output', str(self.root / 'site'), '--forms-mode', 'none'],
+                                input='\n', capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads((self.root / 'site/migration/intake.json').read_text())
+        self.assertIsNone(data['export_path'])
+        self.assertEqual(data['export_status'], 'pending-download')
+
+    def test_local_export_and_browser_export_are_mutually_exclusive(self):
+        result = self.run_init('--export-from-admin', '--forms-mode', 'none', '--non-interactive')
+        self.assertEqual(result.returncode, 2)
+        self.assertFalse((self.root / 'site').exists())
+
+    def test_missing_file_is_not_misreported_as_a_download_or_silently_replaced(self):
+        self.export.unlink()
+        result = self.run_init('--forms-mode', 'none', '--non-interactive')
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('--export-from-admin', result.stderr)
+        self.assertFalse((self.root / 'site').exists())
+        self.assertFalse(self.export.exists())
+
     def test_noninteractive_email_requires_explicit_recipient_without_writes(self):
         result = self.run_init('--non-interactive', '--forms-mode', 'email')
         self.assertEqual(result.returncode, 2)
@@ -136,6 +174,22 @@ class Helpers(unittest.TestCase):
         self.assertTrue(any(w['type'] == 'classify-custom-type' for w in data['warnings']))
         self.assertEqual(self.export.read_bytes(), before)
 
+    def test_inventory_retains_export_identity_and_warns_on_a_different_site(self):
+        content = wxr(item('1')).replace('https://example.org/studio/', 'https://other.example.org/news/')
+        content = content.replace('<channel>', '<channel><title>Other site</title>'
+                                  '<wp:base_site_url>https://other.example.org/</wp:base_site_url>'
+                                  '<wp:base_blog_url>https://other.example.org/news/</wp:base_blog_url>')
+        self.export.write_text(content)
+        data = inventory.inspect(self.export, source='https://example.org/studio')
+        self.assertEqual(data['source_url'], 'https://example.org/studio')
+        self.assertEqual(data['export_site']['title'], 'Other site')
+        self.assertEqual(data['export_site']['channel_url'], 'https://other.example.org/news/')
+        self.assertEqual(data['export_site']['base_site_url'], 'https://other.example.org/')
+        self.assertEqual(data['export_site']['base_blog_url'], 'https://other.example.org/news/')
+        self.assertTrue(any(w['type'] == 'export-site-mismatch' for w in data['warnings']))
+        matching = inventory.inspect(self.export, source='https://other.example.org/news')
+        self.assertFalse(any(w['type'] == 'export-site-mismatch' for w in matching['warnings']))
+
     def test_inventory_preserves_repeated_meta_and_nested_widgets(self):
         builder = json.dumps([{'elements': [{'widgetType': 'heading', 'elements': []}]}])
         metadata = meta('_elementor_data', builder) + meta('_yoast_wpseo_title', 'SEO') + meta('_yoast_wpseo_title', 'Repeated')
@@ -154,7 +208,7 @@ class Helpers(unittest.TestCase):
         self.assertTrue(any(w['type'] == 'route-collision' for w in data['warnings']))
 
     def test_inventory_duplicate_ids_entities_and_non_wxr_fail(self):
-        for text in (wxr(item('1'), item('1')), '<rss><channel/></rss>',
+        for text in (wxr(item('1'), item('1')), '<rss><channel/></rss>', '<html><body>Sign in</body></html>',
                      '<!DOCTYPE rss [<!ENTITY evil "expanded">]>' + wxr()):
             self.export.write_text(text)
             with self.assertRaises(ValueError):
