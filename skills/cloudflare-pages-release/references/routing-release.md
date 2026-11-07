@@ -24,6 +24,18 @@ Keep production canonical URLs based on the intended domain, even while serving 
 
 Before authorized cutover record old routing/DNS and known rollback deployment, avoid deleting WordPress/backups, and make any necessary canonical-host redirect explicit. Email configuration must not silently replace the company's mail service. If real email cannot be tested, state the missing evidence instead of claiming delivery.
 
+## Canonical host at go-live
+
+Use the apex as the production canonical host and configure a **Cloudflare 301 www-to-apex redirect** when the site goes live, unless the user explicitly selected another canonical host. Preserve that choice in the destination's `migration/` records. For a subdomain-only site, record the intended host rather than assuming ownership of the parent apex or its www hostname.
+
+For an apex site, use a Cloudflare Single Redirect matching only the site's exact www hostname, for example `http.host eq "www.example.com"`, with dynamic target `concat("https://example.com", http.request.uri.path)`, status `301` and query-string preservation enabled. Match both HTTP and HTTPS. Substitute the destination's actual domain. An existing equivalent Cloudflare rule can be retained; inspect overlapping rules before adding another. Ensure www DNS is proxied and its TLS certificate is valid before verifying HTTPS requests. A DNS alias or canonical tag alone does not provide this redirect.
+
+Keep canonicals, sitemap and internal absolute URLs on the chosen HTTPS apex. During authorized cutover, record the previous www DNS/rules for rollback and the actual rule identifier/settings. Do not change unrelated subdomains or mail records.
+
+Verify live HTTP and HTTPS requests to www for `/`, a real nested page and a path with query parameters (including tracking parameters). Record the first response status and exact `Location`: the host redirect must retain the path and query string and target the HTTPS apex. Follow the chain to verify the expected page or legacy redirect, without loops or an apex-to-www bounce. Check HTTPS apex pages and certificate behavior too.
+
+If domain access, DNS or TLS is pending, continue preview/content work and record the redirect as pending in `migration/status.md`. A preview deployment or saved rule is not evidence that the live redirect works; do not claim go-live complete until these hosted checks pass.
+
 ## Official references
 
 - [Static Astro and Cloudflare adapter behavior](https://docs.astro.build/en/guides/integrations-guide/cloudflare/).
@@ -31,5 +43,7 @@ Before authorized cutover record old routing/DNS and known rollback deployment, 
 - [Pages redirects](https://developers.cloudflare.com/pages/configuration/redirects/) for rule semantics, query limitations and current limits.
 - [Functions routing](https://developers.cloudflare.com/pages/functions/routing/) for invocation coverage in build output.
 - [Pages service bindings](https://developers.cloudflare.com/pages/functions/bindings/#service-bindings) for Worker/environment configuration.
+- [Cloudflare www-to-apex Single Redirect](https://developers.cloudflare.com/rules/url-forwarding/examples/redirect-www-to-root/) for hostname matching, dynamic targets and query-string preservation.
+- [Pages www-to-apex guide](https://developers.cloudflare.com/pages/how-to/www-redirect/) for an alternative using Bulk Redirects and proxied www DNS.
 
 These are maintained external references. Recheck them during a real implementation rather than assuming this pack freezes provider behavior.

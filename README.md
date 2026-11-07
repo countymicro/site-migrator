@@ -35,6 +35,7 @@ Then tell the agent:
 - Replaces contact forms with email submissions, spam protection, a sending indicator and a persistent thank-you message.
 - Configures friendly email sender names, checks delivery receipts, and investigates missing mail or domain authentication problems.
 - Adds GitHub Actions validation and, when requested, automatic Cloudflare deployment after checks pass.
+- At go-live, configures and verifies a Cloudflare www-to-apex 301 redirect that preserves paths and query strings, unless you selected a different canonical host.
 
 The agent asks before dropping or changing features it cannot reproduce, such as store checkout, member accounts or plugin-specific workflows. Keep the original site available during migration so its appearance and behavior can be compared.
 

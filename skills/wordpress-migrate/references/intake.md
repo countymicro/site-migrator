@@ -18,6 +18,7 @@ Ask what cannot be inferred from supplied instructions or connected configuratio
 | CI mode, GitHub repository and production branch | Release preparation | Include validation; ask whether pushes should deploy when not specified; inspect existing workflows/integrations |
 | CI deployment credentials | Before enabling automatic release | Prefer existing scoped credentials; keep token values out of intake; resolve required access/expiry and provision only within authorization |
 | Exact production and functional preview hosts | Hosted forms | Keep Turnstile hostname and Worker origin lists consistent |
+| Production canonical host and www redirect | Go-live preparation | Default to HTTPS apex with a Cloudflare 301 www-to-apex redirect preserving paths/query strings; retain an explicitly different host choice and record domain access or DNS/TLS gaps without blocking content work |
 | Analytics/consent | If present | Ask whether to preserve approved tracking; avoid duplicating legacy trackers |
 | Deploy, push, DNS cutover, real email test | Before each affected external action | Use existing explicit scope; ask only for missing authorization |
 
