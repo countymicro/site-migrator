@@ -8,7 +8,7 @@ Inspect the site's existing workflows, default/production branch, npm scripts, N
 
 Adapt [assets/github-cloudflare.yml](../assets/github-cloudflare.yml) into the destination's `.github/workflows/cloudflare.yml`. It assumes static output in `dist/`, `.nvmrc`, npm scripts `check`, `test`, `build`, `verify`, `worker:deploy`, `verify:cloudflare`, and a contact Worker. Verify or implement those interfaces rather than adding no-op scripts. Remove contact steps for a site without forms. Run validation from a clean checkout: `verify` must use committed, sanitized public verification inputs rather than ignored WXR exports, private drafts, local browser captures or a workstation cache. Normal build/validation must not require the old WordPress server or production secrets.
 
-`verify:cloudflare` must honor `PREVIEW_URL` and fail on wrong status/Location/content; a localhost default must not hide a hosted check failure.
+`verify:cloudflare` must honor `PREVIEW_URL` and fail on wrong status/Location/content; a localhost default must not hide a hosted check failure. Implement the template’s `audit:lighthouse` hook using the destination’s existing tooling and the [Lighthouse checklist](../../wordpress-parity/references/lighthouse.md): require the explicit deployed origin, audit selected scenarios, enforce agreed targets and record scores/diagnostics. Do not add a no-op script.
 
 Set the actual production branch in both the push trigger and deploy-step conditions (the example uses `main`). Use pinned, verified action revisions and the destination lockfile/runtime. Validation must complete before credentials are exposed or deployment starts; PR code must not deploy or receive production secrets. Do not use `pull_request_target` to execute untrusted changes with credentials.
 
@@ -34,7 +34,7 @@ The workflow validates the exact checked-out SHA, deploys the contact Worker fir
 
 Keep Actions permissions minimal (`contents: read` for the direct CLI workflow); add deployment/PR permissions only if an actual integration uses them. A manual dispatch from a non-production branch should not accidentally publish production. Use GitHub environment protections if required by the site's release policy.
 
-After deploy, smoke-test hosted routes/redirects/media and the contact configuration endpoint, where applicable. This CI check must not send real enquiries. Browser challenge/thank-you and inbox checks remain separate evidence. Emit a run summary with SHA, target, deployment URLs/versions when available and verification results; never print credentials.
+After deploy, smoke-test hosted routes/redirects/media and the contact configuration endpoint, where applicable. Then run Lighthouse against that verified artifact/origin. Repeat on the canonical custom domain after cutover with production integrations enabled; preview results are not production acceptance. Include actual scores and failed diagnostics in the release report. This CI check must not send real enquiries. Browser challenge/thank-you and inbox checks remain separate evidence. Emit a run summary with SHA, target, deployment URLs/versions when available and verification results; never print credentials.
 
 ## Prove it works
 

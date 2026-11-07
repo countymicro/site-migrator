@@ -35,6 +35,7 @@ If a question interface supports only three short questions, use those three and
 - `migration/routes.json`: reconciled public route decisions, including sitemap-only routes and redirects. Use this authoritative route set for the final parity sweep.
 - `migration/media.json`, `issues.json`: download outcomes, original-to-local mapping and unresolved source gaps.
 - `migration/parity/`: screenshot evidence and reviews; raw captures may include private browser context and need review before publishing.
+- `migration/lighthouse/`: ignored raw baseline/preview/production Lighthouse reports. Publish reviewed scores/metrics, outstanding diagnostics and release identity in the migration report.
 - `migration/status.md`, `MIGRATION.md`: sanitized progress and final evidence.
 
 Do not commit raw WXR, private/draft content, raw captures or account identifiers by default. Public Markdown collections and sanitized reports are deliberate outputs, not a license to publish everything from the export. If unpublished content must be retained locally, keep it outside routing and public assets and ask before publishing it in a public repository.

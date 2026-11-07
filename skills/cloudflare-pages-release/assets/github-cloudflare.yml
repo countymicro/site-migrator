@@ -69,9 +69,16 @@ jobs:
             if (!config.siteKey) throw new Error("Contact service is unavailable");
             console.log("Hosted contact configuration is ready; email delivery is not tested by this check");
           '
+      # Implement this hook with the destination’s pinned Lighthouse/Chrome tooling.
+      # Audit the deployed origin; repeat on the production hostname after cutover.
+      - name: Verify deployed Lighthouse scores
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          LIGHTHOUSE_BASE_URL: ${{ vars.CLOUDFLARE_PAGES_URL }}
+        run: npm run audit:lighthouse
       - name: Record successful release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
           PUBLIC_SITE_URL: ${{ vars.CLOUDFLARE_PAGES_URL }}
         run: |
-          echo "Deployed commit $GITHUB_SHA to $PUBLIC_SITE_URL; hosted smoke checks passed." >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployed commit $GITHUB_SHA to $PUBLIC_SITE_URL; hosted smoke and Lighthouse checks passed." >> "$GITHUB_STEP_SUMMARY"

@@ -19,6 +19,8 @@ Use the environment's supported browser tool and follow its automation rules. If
 
 Test navigation, hover/focus, full card link areas, mobile ordering, carousels, videos/embeds, reduced motion and form visibility/states. Include contact, legal, resources, calendar and unusual long-copy pages, not just the homepage.
 
+During implementation and after release, read [references/lighthouse.md](references/lighthouse.md). Include measured CSS/image/font/loading optimizations and accessibility/SEO fixes in the migration, with score/metric baselines and fresh deployed-origin audits. Preserve layout and approved integrations, then recheck affected views and states. A passing score does not replace visual review.
+
 Use [references/evidence.md](references/evidence.md) for the bundled `scripts/check_parity.py` contract. Run it on the final reconciled public route set, not only the WXR subset. Its pass means evidence coverage/integrity passed; only actual browser review can establish similarity.
 
 Close with route coverage, corrected shared differences, current screenshots, remaining source conditions and site-specific accepted differences. Ask about genuinely ambiguous or intentional changes, not each routine spacing fix. Do not assume this site's owner accepts the small differences accepted for a previous client.

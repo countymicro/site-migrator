@@ -151,6 +151,7 @@ class Helpers(unittest.TestCase):
         ignore = (self.root / 'site/.gitignore').read_text()
         self.assertIn('/migration/intake.json', ignore)
         self.assertIn('/migration/inventory.json', ignore)
+        self.assertIn('/migration/lighthouse/', ignore)
         self.assertIn('**/.dev.vars', ignore)
 
     def test_header_injection_rejected_and_source_unchanged(self):

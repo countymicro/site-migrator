@@ -35,6 +35,7 @@ Then tell the agent:
 - Replaces contact forms with email submissions, spam protection, a sending indicator and a persistent thank-you message.
 - Configures friendly email sender names, checks delivery receipts, and investigates missing mail or domain authentication problems.
 - Adds GitHub Actions validation and, when requested, automatic Cloudflare deployment after checks pass.
+- Optimizes measured CSS/image/font/loading issues and accessibility/SEO failures, then verifies Lighthouse scores after deployment and on the production hostname.
 - At go-live, configures and verifies a Cloudflare www-to-apex 301 redirect that preserves paths and query strings, unless you selected a different canonical host.
 
 The agent asks before dropping or changing features it cannot reproduce, such as store checkout, member accounts or plugin-specific workflows. Keep the original site available during migration so its appearance and behavior can be compared.
@@ -55,7 +56,7 @@ The report distinguishes code changes, commits, pushes, deployments, domain chan
 | [cloudflare-contact-forms](skills/cloudflare-contact-forms/SKILL.md) | Build forms and verify email behavior |
 | [cloudflare-pages-release](skills/cloudflare-pages-release/SKILL.md) | Set up CI, deployment and hosted checks |
 
-The release skill includes a [GitHub Actions template](skills/cloudflare-pages-release/assets/github-cloudflare.yml) to adapt for each website.
+The release skill includes a [GitHub Actions template](skills/cloudflare-pages-release/assets/github-cloudflare.yml) to adapt for each website. The [Lighthouse checklist](skills/wordpress-parity/references/lighthouse.md) covers the optimization and audit loop. Default targets are performance ≥90 and accessibility, Best Practices and SEO 100, with actual scores and any agreed exceptions recorded.
 
 ## Optional developer tools
 

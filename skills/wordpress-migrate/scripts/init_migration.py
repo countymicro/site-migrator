@@ -128,7 +128,7 @@ def main():
         ignore = output / '.gitignore'
         existing = ignore.read_text() if ignore.exists() else ''
         private_paths = ('/migration/intake.json', '/migration/inventory.json',
-                         '/migration/parity/', '/wordpress/', '/exports/',
+                         '/migration/parity/', '/migration/lighthouse/', '/wordpress/', '/exports/',
                          '/src/content/drafts/', '/.env', '/.env.*', '/.dev.vars',
                          '/.dev.vars.*', '**/.dev.vars', '**/.dev.vars.*')
         missing = [item for item in private_paths if item not in existing.splitlines()]
