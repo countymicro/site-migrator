@@ -7,6 +7,8 @@ description: Configure and verify a static Astro WordPress replacement on Cloudf
 
 Read the site's target/account/environment and authorization. Default to a static Astro build hosted on **Cloudflare Pages**, with Pages Functions for necessary routes and a Worker for email. Consult [references/routing-release.md](references/routing-release.md) before routing/deployment. Verify current versions and provider docs; do not silently switch a requested Pages site to Workers static assets because a newer adapter defaults there.
 
+Default new Pages project names to the site/brand slug without adding `-website`: repository `example-website` → Pages project `example` → `example.pages.dev`. Keep repository names independent. Check the desired hostname before creation and verify the actual assigned hostname. Use the selected project/hostname consistently in Wrangler, CI variables, verification URLs and form allowlists. Honor an explicit name or an existing project.
+
 A static Astro site needs no SSR adapter. Configure its build output and include native Functions separately. Lock runtime/dependency versions based on current compatibility; record install/build commands. Do not blindly install a historic Astro/adapter version from a prior migration.
 
 ## Local validation

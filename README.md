@@ -13,7 +13,7 @@ The agent reads [AGENTS.md](AGENTS.md) and starts the [migration skill](skills/w
 - **WordPress export:** use an existing XML file, or let the agent open WordPress admin and download a fresh **All content** export. You may need to sign in or complete MFA in the browser; no password in chat is needed.
 - **New project:** where to create the website and which Git repository to use.
 - **Forms:** which inbox receives submissions, the sender address and friendly sender name, and any downloads or CRM behavior to preserve.
-- **Hosting:** the Cloudflare account, project and domain, plus whether pushes should automatically publish the site.
+- **Hosting:** the Cloudflare account, project and domain, plus whether pushes should automatically publish the site. New Pages project names default to the site slug without `-website`; repository names can keep that suffix.
 
 You can include answers in your first prompt to save time. If you have no export, say “Download a fresh export from WordPress admin.” The agent checks the downloaded file before importing it. Each website gets its own project and repository, so you can reuse this toolkit for multiple clients.
 

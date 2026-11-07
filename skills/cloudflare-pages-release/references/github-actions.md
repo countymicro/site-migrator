@@ -20,7 +20,7 @@ Use approved connected tools or secret commands to provision these in the **dest
 | --- | --- |
 | `CLOUDFLARE_API_TOKEN` | Encrypted Actions secret, scoped deployment credential |
 | `CLOUDFLARE_ACCOUNT_ID` | Actions variable identifying the selected account |
-| `CLOUDFLARE_PAGES_PROJECT` | Actions variable with the existing project name |
+| `CLOUDFLARE_PAGES_PROJECT` | Actions variable with the actual Pages project name; new projects default to the site slug without `-website`, independently of the repository name |
 | `CLOUDFLARE_PAGES_URL` | Actions variable with the exact functional URL used for hosted smoke checks |
 | Turnstile secret | Worker secret in the target Cloudflare environment, not a public build variable |
 

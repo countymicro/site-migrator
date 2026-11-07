@@ -14,7 +14,7 @@ Ask what cannot be inferred from supplied instructions or connected configuratio
 | CRM, calendars, gated downloads, autoresponders | When discovered | Preserve approved integrations or agree on replacement; identify dropped automations |
 | Shop, accounts, search, comments, multilingual, subscriptions | When discovered | Determine data/runtime/backend needs before removing behavior |
 | Fidelity and intentional changes | Design | Default to source design; do not invent a redesign or import another site's accepted compromises |
-| Cloudflare account/project and environments | Hosting preparation | Read connected account/project configuration; ask if ambiguous |
+| Cloudflare account/project and environments | Hosting preparation | Read connected configuration; default new Pages projects to the site slug without `-website`, independently of the repository name; honor explicit/existing projects and ask if ambiguous |
 | CI mode, GitHub repository and production branch | Release preparation | Include validation; ask whether pushes should deploy when not specified; inspect existing workflows/integrations |
 | CI deployment credentials | Before enabling automatic release | Prefer existing scoped credentials; keep token values out of intake; resolve required access/expiry and provision only within authorization |
 | Exact production and functional preview hosts | Hosted forms | Keep Turnstile hostname and Worker origin lists consistent |
